@@ -17,24 +17,55 @@ import secret
 key = secret.GOODREADS_KEY
 googlekey = secret.GOOGLEMAP_KEY
 
-# # SI 507 - Final Project
-# # COMMENT WITH: Maheen Asghar
-# # Your section day/time: 002
+# SI 507 - Final Project
+# COMMENT WITH: Maheen Asghar
+# Your section day/time: 002
+
+class Books():
+	def __init__(self, genre, title, author, ISBN, publisher=None, publisheddate=None):
+		self.genre = genre
+		self.title = title
+		self.author = author
+		self.ISBN = ISBN
+		
+		if publisher == "":
+			self.publisher = ""
+		else:
+			self.publisher = publisher 
+
+		if publisheddate == "":
+			self.publisheddate = ""
+		else:
+			self.publisheddate = publisheddate 
+
+		# if rating == "":
+		# 	self.rating = ""
+		# else:
+		# 	self.rating = rating 
+
+		# if city == "":
+		# 	self.city = ""
+		# else:
+		# 	self.city = city 
+
+	def __str__(self):
+		return self.title + " is written by " + self.author + " in " + self.publisheddate + " by " + self.publisheddate + "in the genre of " + self.genre
+
 
 def initialize_db():
 	conn = sqlite.connect("asghar_maheen.sqlite")
 	cur = conn.cursor()
 	
 	statement = '''
-		DROP TABLE IF EXISTS 'Cities';
+		DROP TABLE 'Books';
 	'''
 	cur.execute(statement)
-
-	statement = '''
-		DROP TABLE IF EXISTS 'Books';
-	'''
-	cur.execute(statement)
+	conn.commit()
 	
+	statement = '''
+		DROP TABLE 'Cities';
+	'''
+	cur.execute(statement)	
 	conn.commit()
 	
 	statement = '''
@@ -99,6 +130,8 @@ def get_google_data(genres):
 		f.write(cache_str_tmp)
 		f.close()  
 
+	list_book_objects = []
+
 	for genre in CACHE_DICTION:
 		#print(CACHE_DICTION[genre])
 		for book in CACHE_DICTION[genre]["items"]:
@@ -113,6 +146,11 @@ def get_google_data(genres):
 				description = book["volumeInfo"]["description"]
 				insertion = (genre, title, author, new_isbn, publisher, publishdate, description)
 				#print(insertion)
+				
+				bookobject = Books(genre=genre, title=title, author=author, ISBN=new_isbn, publisher=publisher, publisheddate=publishdate)
+				
+				list_book_objects.append(bookobject)
+				
 				statement = 'INSERT INTO "Books" (Genre, Title, Author, ISBN, Publisher, PublishedDate, Description)'
 				statement += 'VALUES (?, ?, ?, ?, ?, ?, ?)'
 				cur.execute(statement, insertion)
@@ -122,7 +160,7 @@ def get_google_data(genres):
 				
 		
 	conn.close()
-	return None
+	return list_book_objects
 
 #This function hits the goodreads api to get the author id of the author of the book if they don't already exist in the cache. It then inserts all the data into the database table called 'Books.'
 def get_goodreads_author_data():
@@ -171,8 +209,8 @@ def get_goodreads_author_data():
 			rating = CACHE_DICTION[a]["GoodreadsResponse"]['search']['results']['work']["average_rating"]
 			if rating == {'@type': 'float', '#text': '0.0'}:
 				rating = 0.00
-			print(author)
-			print(rating)
+			#print(author)
+			#print(rating)
 			statement = '''UPDATE "Books"
 			SET AUTHORID = ?,
 			RATING = ?
@@ -318,87 +356,114 @@ def get_geo_data():
 	conn.close()
 	return None
 
+#second menu to let the user pick what genre they would like to explore
 def helper_menu():
 	puts(colored.magenta("****************************************"))
 	with indent(4):
-		puts("1. art")
-		puts("2. autobiography")
-		puts("3. biography")
-		puts("4. children")
-		puts("5. comic")
-		puts("6. drama")
-		puts("7. health")
-		puts("8. history")
-		puts("9. horror")
-		puts("10. memoir")
-		puts("11. mystery")
-		puts("12. poetry")
-		puts("13. religion")
-		puts("14. romance")
-		puts("15. thriller")
-		puts("16. tragedy")
-		puts("17. travel")
-		puts("18. western")
+		puts("1. adventure")
+		puts("2. art")
+		puts("3. autobiography")
+		puts("4. biography")
+		puts("5. children")
+		puts("6. comedy")
+		puts("7. comic")
+		puts("8. critique")
+		puts("9. drama")
+		puts("10. health")
+		puts("11. history")
+		puts("12. horror")
+		puts("13. melodrama")
+		puts("14. memoir")
+		puts("15. mystery")
+		puts("16. myth")
+		puts("17. mythology")
+		puts("18. poetry")
+		puts("19. poetry")
+		puts("20. religion")
+		puts("21. romance")
+		puts("22. satire")
+		puts("23. thriller")
+		puts("24. tragedy")
+		puts("25. travel")
+		puts("26. western")
 	puts(colored.magenta("****************************************"))
 
 	while True:
 		try:
 			reply =  int(input("\nPlease pick a genre: \n"))
 		except ValueError:
-			puts(colored.red("Please enter a valid number between 1 and 18."))
+			puts(colored.red("Please enter a valid number between 1 and 26."))
 			continue
 
-		if reply < 0:
-			puts(colored.red("Please enter a number between 1 and 18."))
+		if reply < 1:
+			puts(colored.red("Please enter a number between 1 and 26."))
 			continue
-		elif reply > 18:
-			puts(colored.red("Please enter a number between 1 and 18."))
+		elif reply > 26:
+			puts(colored.red("Please enter a number between 1 and 26."))
 			continue
 		else:
 			break
 
 	return reply
 
+#returns helper menu specifications
 def helper_statement(statement, reply):
 	if reply == 1:
-		statement += " WHERE GENRE = 'art' "
+		statement += " WHERE GENRE = 'adventure' "
 	if reply == 2:
-		statement += " WHERE GENRE = 'autobiography' "
+		statement += " WHERE GENRE = 'art' "
 	if reply == 3:
-		statement += " WHERE GENRE = 'biography' "
+		statement += " WHERE GENRE = 'autobiography' "
 	if reply == 4:
-		statement += " WHERE GENRE = 'children' "
+		statement += " WHERE GENRE = 'biography' "
 	if reply == 5:
-		statement += " WHERE GENRE = 'comic' "
+		statement += " WHERE GENRE = 'children' "
 	if reply == 6:
-		statement += " WHERE GENRE = 'drama' "
+		statement += " WHERE GENRE = 'comedy' "
 	if reply == 7:
-		statement += " WHERE GENRE = 'health' "
+		statement += " WHERE GENRE = 'comic' "
 	if reply == 8:
-		statement += " WHERE GENRE = 'history' "
+		statement += " WHERE GENRE = 'critique' "
 	if reply == 9:
-		statement += " WHERE GENRE = 'horror' "
+		statement += " WHERE GENRE = 'drama' "
 	if reply == 10:
-		statement += " WHERE GENRE = 'memoir' "
+		statement += " WHERE GENRE = 'health' "
 	if reply == 11:
-		statement += " WHERE GENRE = 'mystery' "
+		statement += " WHERE GENRE = 'history' "
 	if reply == 12:
-		statement += " WHERE GENRE = 'poetry' "
+		statement += " WHERE GENRE = 'horror' "
 	if reply == 13:
-		statement += " WHERE GENRE = 'religion' "
+		statement += " WHERE GENRE = 'melodrama' "
 	if reply == 14:
-		statement += " WHERE GENRE = 'romance' "
+		statement += " WHERE GENRE = 'memoir' "
 	if reply == 15:
-		statement += " WHERE GENRE = 'thriller' "
+		statement += " WHERE GENRE = 'mystery' "
 	if reply == 16:
-		statement += " WHERE GENRE = 'tragedy' "
+		statement += " WHERE GENRE = 'myth' "
 	if reply == 17:
-		statement += " WHERE GENRE = 'travel' "
+		statement += " WHERE GENRE = 'mythology' "
 	if reply == 18:
+		statement += " WHERE GENRE = 'philosophy' "
+	if reply == 19:
+		statement += " WHERE GENRE = 'poetry' "
+	if reply == 20:
+		statement += " WHERE GENRE = 'religion' "
+	if reply == 21:
+		statement += " WHERE GENRE = 'romance' "
+	if reply == 22:
+		statement += " WHERE GENRE = 'satire' "
+	if reply == 23:
+		statement += " WHERE GENRE = 'thriller' "
+	if reply == 24:
+		statement += " WHERE GENRE = 'tragedy' "
+	if reply == 25:
+		statement += " WHERE GENRE = 'travel' "
+	if reply == 26:
 		statement += " WHERE GENRE = 'western' "
 
 	return statement 
 
+#returns book information, either by genre or all from the 'Books' table
 def book_information(reply):
 	conn = sqlite.connect("asghar_maheen.sqlite")
 	cur = conn.cursor()
@@ -436,6 +501,7 @@ def book_information(reply):
 	py.plot([table], filename='table-of-book-data')
 	return None
 
+#returns author information, either by genre or all, from both the Books table and the Cities table (joined by the cityid foreign key)
 def author_information(reply):
 	conn = sqlite.connect("asghar_maheen.sqlite")
 	cur = conn.cursor()
@@ -465,7 +531,7 @@ def author_information(reply):
 		#columnwidth=[0.4, 0.47, 0.48, 0.4, 0.4, 0.45, 0.5, 0.6],
 		header=dict(
 			#values=list(df.columns[1:]),
-			values=['Genre', 'Title', 'Author', 'ISBN', 'Publisher', 'PublishedDate', 'Rating', 'City'],
+			values=['Genre', 'Author', 'City', 'Latitude', 'Longitude'],
 			font=dict(size=10),
 			line = dict(color='rgb(50, 50, 50)'),
 			align = 'left',
@@ -481,6 +547,7 @@ def author_information(reply):
 	py.plot([table], filename='table-of-author-data')
 	return None
 
+#returns the average rating, rounded to the second decimal, from books 
 def average_rating(reply):
 	conn = sqlite.connect("asghar_maheen.sqlite")
 	cur = conn.cursor()
@@ -509,7 +576,7 @@ def average_rating(reply):
 
 	return None
 
-
+#returns the book information in a scatter plot, created with an inner join between books and cities
 def graph_books():
 	conn = sqlite.connect("asghar_maheen.sqlite")
 	cur = conn.cursor()
@@ -563,8 +630,9 @@ def graph_books():
 
 	return None
 
+
 def mainmenu():
-	print("\bPlease select an option below and type '0' to exit the program.")
+	print("\b\b\bPlease select an option below and type '0' to exit the program.")
 	puts(colored.cyan("----------------------------------------"))
 	print("\t\tMain Menu")
 	puts(colored.cyan("----------------------------------------"))
@@ -597,6 +665,7 @@ def mainmenu():
 	
 	return None
 
+#used for the main menu options 1-3
 def submenu(option):
 	if option == 1 or option == 2 or option == 3:
 		puts(colored.magenta("----------------------------------------"))
@@ -638,11 +707,10 @@ def submenu(option):
 
 
 if __name__ == "__main__":
-	genres = ["romance", "mystery", "western", "horror", "drama", "history", "biography", "comic", "thriller", "health", "travel", "religion", "poetry", "art", "tragedy", "children", "autobiography", "memoir"]
-	#initialize_db()
-	#get_google_data(genres)
-	#get_goodreads_author_data()
-	#get_goodreads_city_data()
-	#get_geo_data()
+	genres = ["romance", "mystery", "western", "horror", "drama", "history", "biography", "comic", "thriller", "health", "travel", "religion", "poetry", "art", "tragedy", "children", "autobiography", "memoir", "adventure", "religion", "melodrama", "satire", "comedy", "myth", "mythology", "critique", "philosophy"]
+	initialize_db()
+	get_google_data(genres)
+	get_goodreads_author_data()
+	get_goodreads_city_data()
+	get_geo_data()
 	mainmenu()
-	

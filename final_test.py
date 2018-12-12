@@ -1,5 +1,6 @@
 from final import *
 import unittest
+from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 
 class Test_Database(unittest.TestCase):
 	
@@ -88,10 +89,10 @@ class Test_Visuals(unittest.TestCase):
 class Test_Helper(unittest.TestCase):
    
 	def test_menu(self):
-		query = helper_statement("SELECT * FROM Books ", 11)
+		query = helper_statement("SELECT * FROM Books ", 15)
 		self.assertEqual(query, "SELECT * FROM Books  WHERE GENRE = 'mystery' ")
 
-		query = helper_statement("", 2)
+		query = helper_statement("", 3)
 		self.assertEqual(query, " WHERE GENRE = 'autobiography' ")
 
 
