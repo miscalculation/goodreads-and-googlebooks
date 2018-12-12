@@ -26,7 +26,7 @@ PyInquirer==1.0.3
 python-dateutil==2.7.5
 pytz==2018.7
 regex==2018.11.22
-requests==2.19.1
+requests==2.21.0
 requests-oauthlib==1.0.0
 retrying==1.3.3
 selenium==3.14.1
