@@ -21,7 +21,7 @@ oauthlib==2.1.0
 pandas==0.23.4
 plotly==3.3.0
 prompt-toolkit==1.0.14
-Pygments==2.3.0
+Pygments==2.7.4
 PyInquirer==1.0.3
 python-dateutil==2.7.5
 pytz==2018.7
